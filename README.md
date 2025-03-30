@@ -48,7 +48,6 @@
 
 3.  **Kotlin 및 Kotlin JDSL 생태계 발전:**
     *   **Kotlin (1.9.21 -> 1.9.25):** Kotlin 컴파일러(K2 포함) 및 관련 Gradle 플러그인의 지속적인 개선이 이루어졌습니다. Kotlin/Native 메모리 관리자 성능 개선, Kotlin Multiplatform 지원 강화 등 생태계 전반의 안정성 향상 노력이 있었습니다. Kotlin 컴파일러 자체를 GraalVM 네이티브 이미지와 호환되도록 만드는 작업([KT-66666](https://youtrack.jetbrains.com/issue/KT-66666)) 등 GraalVM 호환성 향상 노력도 간접적으로 긍정적인 영향을 미쳤을 수 있습니다.
-    *   **Kotlin JDSL (과거 버전 -> 3.5.5):** 라이브러리 내부적으로 GraalVM 호환성을 위한 메타데이터를 더 잘 제공하도록 수정되었거나, 앞서 언급된 `KotlinJdslJpaRepositoryFactoryBeanPostProcessor`의 사용 방식 등 내부 구현이 AOT 환경에 더 친화적으로 변경되었을 가능성이 있습니다. 관련 이슈([#397](https://github.com/line/kotlin-jdsl/issues/397) - Java 8 호환성, [#668](https://github.com/line/kotlin-jdsl/issues/668) - 사용자 정의 리포지토리 구현 문제) 등이 해결되면서 전반적인 안정성이 향상되었을 수 있습니다. (구체적인 AOT 관련 변경 내역은 확인 어려움)
 
 4.  **Spring Boot 자체 개선 (3.2.4 -> 3.4.4):**
     *   앞서 언급된 Spring Framework 개선 사항 통합 외에도, Spring Boot 레벨에서 네이티브 이미지 관련 구성 및 지원이 꾸준히 업데이트되었습니다.
@@ -63,14 +62,13 @@
 -   **Stack Overflow 질문:** [kotlin-jdsl-causes-native-image-build-failure](https://stackoverflow.com/questions/77524699/kotlin-jdsl-causes-native-image-build-failure) 에서 `KotlinJdslJpaRepositoryFactoryBeanPostProcessor`가 문제 원인으로 지목되며 `BeanPostProcessor`와 Spring AOT 간의 비호환성 가능성을 시사했습니다.
 -   **GitHub 이슈:**
     *   **Spring Framework [#31618](https://github.com/spring-projects/spring-framework/issues/31618):** "Kotlin DSL을 사용한 GraalVM 네이티브 오류"로 보고되었으며, 유사 문제 인지를 보여줍니다.
-    *   **Kotlin JDSL [#397](https://github.com/line/kotlin-jdsl/issues/397), [#668](https://github.com/line/kotlin-jdsl/issues/668):** Spring Data JPA 호환성 및 사용자 정의 리포지토리 관련 문제가 논의되었습니다.
     *   **GraalVM [#722](https://github.com/oracle/graal/issues/722):** Kotlin 애플리케이션의 객체 직렬화 관련 네이티브 이미지 빌드 문제가 보고되어, Kotlin과 GraalVM 통합의 복잡성을 보여줍니다.
 
 이러한 사례들은 문제 해결이 특정 라이브러리 하나의 수정보다는 기술 스택 전반의 개선을 통해 이루어졌을 가능성을 뒷받침합니다.
 
 ## 결론
 
-과거 Spring Boot 3.x 초기 환경에서 발생했던 Kotlin JDSL과 Spring Data JPA 리포지토리를 함께 사용할 때의 GraalVM 네이티브 이미지 빌드 문제는, 특정 한두 가지 수정 때문이라기보다는 **Spring Framework AOT 엔진의 성숙, GraalVM Native Build Tools의 발전, Kotlin 및 Kotlin JDSL 생태계의 개선, 그리고 Spring Boot 자체의 지속적인 네이티브 지원 강화**라는 여러 요인이 복합적으로 작용한 결과로 해결된 것으로 보입니다.
+과거 Spring Boot 3.x 초기 환경에서 발생했던 Kotlin JDSL과 Spring Data JPA 리포지토리를 함께 사용할 때의 GraalVM 네이티브 이미지 빌드 문제는, 특정 한두 가지 수정 때문이라기보다는 **Spring Framework AOT 엔진의 성숙, GraalVM Native Build Tools의 발전, Kotlin 생태계의 개선, 그리고 Spring Boot 자체의 지속적인 네이티브 지원 강화**라는 여러 요인이 복합적으로 작용한 결과로 해결된 것으로 보입니다.
 
 특히 Spring Framework의 AOT 엔진이 CGLIB 기반의 복잡한 프록시 시나리오를 더 잘 이해하고 필요한 메타데이터를 자동으로 생성하는 능력이 크게 향상되었으며, 관련 빌드 도구 및 라이브러리들도 이에 발맞춰 개선되었습니다. 현재 기술 스택(Spring Boot 3.4.4, NBT 0.10.6, Kotlin 1.9.25, Kotlin JDSL 3.5.5 등)에서는 프레임워크와 빌드 도구가 이러한 복잡한 시나리오를 더 잘 이해하고 필요한 메타데이터를 자동으로 처리해주기 때문에, 개발자가 별도의 복잡한 수동 구성 없이도 성공적으로 네이티브 이미지를 빌드할 수 있게 되었습니다.
 
