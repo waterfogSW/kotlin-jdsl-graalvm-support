@@ -1,1 +1,18 @@
-spring.application.name=kotlin-jdsl-graalvm-support
+spring:
+  application:
+    name: kotlin-jdsl-graalvm-support
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+  datasource:
+    url: jdbc:mysql://localhost:3307/mydatabase
+    username: myuser
+    password: secret
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  docker:
+    compose:
+      enabled: true

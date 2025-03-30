@@ -13,7 +13,7 @@ version = "0.0.1-SNAPSHOT"
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(21)
     }
 }
 
@@ -32,6 +32,12 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+    // kotlin-jdsl
+    val kotlinJdslVersion = "3.5.5"
+    implementation("com.linecorp.kotlin-jdsl:jpql-dsl:$kotlinJdslVersion")
+    implementation("com.linecorp.kotlin-jdsl:jpql-render:$kotlinJdslVersion")
+    implementation("com.linecorp.kotlin-jdsl:spring-data-jpa-support:$kotlinJdslVersion")
 }
 
 kotlin {
@@ -54,4 +60,22 @@ allOpen {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+graalvmNative {
+    toolchainDetection = false // Explicitly use the configured Java toolchain
+    binaries.named("main") { // Correct way to configure the main binary
+        javaLauncher = javaToolchains.launcherFor(java.toolchain) // Ensure correct Java launcher
+        buildArgs.add("--initialize-at-build-time=org.jetbrains.kotlin")
+        buildArgs.add("--initialize-at-run-time=com.mysql.cj.log.StandardLogger") // MySQL Driver logging
+        buildArgs.add("--initialize-at-run-time=com.mysql.cj.NativeSession") // MySQL Driver native session
+        buildArgs.add("--initialize-at-run-time=com.mysql.cj.jdbc.AbandonedConnectionCleanupThread") // MySQL Driver cleanup thread
+        buildArgs.add("--initialize-at-run-time=io.netty.channel.epoll.Epoll") // If using Netty based components
+        buildArgs.add("--initialize-at-run-time=org.hibernate") // Initialize Hibernate runtime components
+        buildArgs.add("--initialize-at-run-time=org.hibernate.internal.util.ReflectHelper")
+        buildArgs.add("--initialize-at-run-time=org.hibernate.reactive.provider.service.ReactiveGenerationTarget") // If using reactive
+        buildArgs.add("--initialize-at-run-time=org.hibernate.validator.internal.engine.DefaultClockProvider") // Hibernate Validator
+        // Add any other necessary runtime initializations
+        // buildArgs.add("-H:+UnlockExperimentalVMOptions") // Sometimes needed for specific features
+    }
 }

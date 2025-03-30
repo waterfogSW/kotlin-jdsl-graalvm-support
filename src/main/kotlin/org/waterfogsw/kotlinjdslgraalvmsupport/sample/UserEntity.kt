@@ -7,7 +7,7 @@ import jakarta.persistence.Id
 
 
 @Entity
-data class TestEntity(
+data class UserEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long,
